@@ -1,0 +1,2 @@
+rootProject.name = 'kotlin-tech-board'
+rootProject.buildFileName = 'build.gradle.kts'

@@ -1,0 +1,7 @@
+memory: 512M
+instances: 1
+applications:
+- name: kotlin-tech-board
+  path: ./build/libs/kotlin-tech-board-1.0.0-SNAPSHOT.jar
+timeout: 180
+JAVA_OPTS: -Djava.security.egd=file:///dev/urandom

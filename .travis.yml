@@ -1,0 +1,9 @@
+language: java
+before_install: ./gradlew clean
+jdk:
+  - oraclejdk8
+services: mongodb
+notifications:
+  email: true
+install:
+  - ./gradlew test
