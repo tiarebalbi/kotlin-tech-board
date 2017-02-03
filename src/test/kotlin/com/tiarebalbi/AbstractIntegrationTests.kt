@@ -12,9 +12,11 @@ import org.springframework.web.reactive.function.client.WebClient
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class AbstractIntegrationTests {
 
-    @LocalServerPort
-    lateinit var port: Integer
+  @LocalServerPort
+  var port: Int = 0
 
-    val client = WebClient.builder(ExchangeFunctions.create(ReactorClientHttpConnector())).build()
+  val client = WebClient.builder()
+    .exchangeFunction(ExchangeFunctions.create(ReactorClientHttpConnector()))
+    .build()
 
 }
