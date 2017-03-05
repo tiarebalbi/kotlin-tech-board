@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.noarg.gradle.NoArgExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
-    val kotlinVersion = "1.1.0-beta-22"
+    val kotlinVersion = "1.1.0"
     val dependencyManagement = "1.0.0.RELEASE"
     val springBootVersion = "2.0.0.BUILD-SNAPSHOT"
     extra["kotlinVersion"] = kotlinVersion
@@ -59,29 +59,23 @@ val springVersion = "5.0.0.BUILD-SNAPSHOT"
 val springBootVersion = extra["springBootVersion"] as String
 val springDataVersion = "2.0.0.BUILD-SNAPSHOT"
 val jacksonVersion = "2.8.5"
-val reactorVersion = "3.0.4.RELEASE"
+val reactorVersion = "3.0.5.RELEASE"
 
 dependencies {
-    compile("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion")
     compile("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-
-    compile("org.springframework.boot.experimental:spring-boot-starter-web-reactive:0.1.0.BUILD-SNAPSHOT") {
-        exclude(module= "spring-boot-starter-tomcat")
-        exclude(module= "hibernate-validator")
+    compile("org.springframework.boot:spring-boot-starter-webflux") {
+        exclude(module = "hibernate-validator")
     }
-    compile("org.springframework.data:spring-data-mongodb:$springDataVersion")
-    compile("org.springframework.data:spring-data-commons:$springDataVersion")
+    compile("io.projectreactor:reactor-kotlin:1.0.0.BUILD-SNAPSHOT")
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     compile("com.atlassian.commonmark:commonmark:0.8.0")
     compile("io.projectreactor:reactor-core:$reactorVersion")
     compile("io.projectreactor.ipc:reactor-netty:0.6.0.RELEASE")
-    compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compile("commons-logging:commons-logging:1.2")
-    compile("org.slf4j:slf4j-api:1.7.21")
-    compile("ch.qos.logback:logback-classic:1.1.7")
-    compile("org.mongodb:mongodb-driver-reactivestreams:1.2.0")
-    
+
     compileOnly("org.springframework.boot:spring-boot-configuration-processor")
     
     testCompile("org.springframework.boot:spring-boot-starter-test")

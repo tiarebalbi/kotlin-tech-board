@@ -6,21 +6,21 @@ import com.tiarebalbi.support.findById
 import com.tiarebalbi.support.remove
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@Service
+@Repository
 open class UserRepository(val template: ReactiveMongoTemplate) {
 
-    fun findAll(): Flux<User> = template.findAll(User::class)
+  fun findAll(): Flux<User> = template.findAll(User::class)
 
-    fun findOne(id: String) = template.findById(id, User::class)
+  fun findOne(id: String) = template.findById(id, User::class)
 
-    fun deleteAll() = template.remove(Query(), User::class)
+  fun deleteAll() = template.remove(Query(), User::class)
 
-    fun save(user: User) = template.save(user)
+  fun save(user: User) = template.save(user)
 
-    fun save(user: Mono<User>) = template.save(user)
+  fun save(user: Mono<User>) = template.save(user)
 
 }

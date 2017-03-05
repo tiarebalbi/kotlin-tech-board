@@ -12,14 +12,14 @@ import org.springframework.test.context.junit4.SpringRunner
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class TechBoardApplicationTests {
 
-    @Autowired
-    lateinit var properties: TechBoardApplicationProperties
+  @Autowired
+  lateinit var properties: TechBoardApplicationProperties
 
-    @Test
-    fun contextLoads() {
-        assertThat(this.properties.domain)
-                .isNotNull()
+  @Test
+  fun contextLoads() {
+    assertThat(this.properties.domain)
+      .isNotNull()
 
-    }
+  }
 
 }
