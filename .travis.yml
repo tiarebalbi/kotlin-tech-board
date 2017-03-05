@@ -6,7 +6,11 @@ services: mongodb
 notifications:
   email: true
 install:
-  - ./gradlew test
+  - ./gradlew clean build test jacocoTestReport
 
 after_success:
+  - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+  - if [ -e ./gradlew ]; then ./gradlew jacocoTestReport;else gradle jacocoTestReport;fi
+  - find . -type f -regex ".*/target/.*-reports/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+  - find . -type f -regex ".*/build/test-results/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
   - bash <(curl -s https://codecov.io/bash)

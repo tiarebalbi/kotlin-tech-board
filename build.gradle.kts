@@ -1,3 +1,4 @@
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.noarg.gradle.NoArgExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -32,6 +33,7 @@ apply {
     plugin("kotlin-spring")
     plugin("org.springframework.boot")
     plugin("io.spring.dependency-management")
+    plugin("jacoco")
 }
 
 version = "1.0.0-SNAPSHOT"
@@ -52,6 +54,12 @@ tasks.withType<KotlinCompile> {
 
 configure<NoArgExtension> {
     annotation("org.springframework.data.mongodb.core.mapping.Document")
+}
+
+(getTasksByName("jacocoTestReport", false).first() as JacocoReport).apply {
+    reports {
+        it.xml.isEnabled = true
+    }
 }
 
 val kotlinVersion = extra["kotlinVersion"] as String
