@@ -31,3 +31,10 @@ developed with Spring Framework 5 and Kotlin can look like:
 - [Fork](https://github.com/tiarebalbi/kotlin-tech-board#fork-destination-box) and clone [the project](https://github.com/tiarebalbi/kotlin-tech-board)
 - [Install MongoDB](https://www.mongodb.com/download-center)
 - [Install Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+
+## Contributions
+
+### Branches
+- master: All commits that are going to release
+- develop: Snapshot version with all commits during the period of development
+- feature/{ISSUE-NUMBER}: Branch for a specific feature
