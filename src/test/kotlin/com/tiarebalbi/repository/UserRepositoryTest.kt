@@ -1,6 +1,7 @@
 package com.tiarebalbi.repository
 
 import com.tiarebalbi.AbstractIntegrationTests
+import com.tiarebalbi.model.Role
 import com.tiarebalbi.model.User
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -33,6 +34,8 @@ class UserRepositoryTest : AbstractIntegrationTests() {
       .consumeNextWith {
         assertThat(it.email).isEqualTo("me@tiarebalbi.com")
         assertThat(it.firstName).isEqualTo("Tiare")
+        assertThat(it.lastName).isEqualTo("Balbi")
+        assertThat(it.role).isEqualTo(Role.USER)
       }
       .verifyComplete()
   }
@@ -50,6 +53,9 @@ class UserRepositoryTest : AbstractIntegrationTests() {
       .consumeNextWith {
         assertThat(it).isNotNull()
         assertThat(it.email).isEqualTo("me@tiarebalbi.com")
+        assertThat(it.firstName).isEqualTo("Tiare")
+        assertThat(it.lastName).isEqualTo("Balbi")
+        assertThat(it.role).isEqualTo(Role.USER)
       }
       .verifyComplete()
   }
@@ -84,5 +90,5 @@ class UserRepositoryTest : AbstractIntegrationTests() {
       .verifyComplete()
   }
 
-  private fun getUser() = User("me@tiarebalbi.com", "Tiare")
+  private fun getUser() = User("me@tiarebalbi.com", "Tiare", "Balbi")
 }
