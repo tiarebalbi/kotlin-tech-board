@@ -10,6 +10,7 @@ buildscript {
     extra["springBootVersion"] = springBootVersion
 
     repositories {
+        jcenter()
         mavenCentral()
         maven { setUrl("https://plugins.gradle.org/m2/") }
         maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
@@ -23,6 +24,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion")
         classpath("org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion")
         classpath("io.spring.gradle:dependency-management-plugin:$dependencyManagement")
+        classpath("org.jfrog.buildinfo:build-info-extractor-gradle:latest.release")
     }
 }
 
@@ -34,6 +36,7 @@ apply {
     plugin("org.springframework.boot")
     plugin("io.spring.dependency-management")
     plugin("jacoco")
+    plugin("com.jfrog.artifactory")
 }
 
 version = "1.0.0-SNAPSHOT"

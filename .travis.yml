@@ -1,16 +1,31 @@
 language: java
 before_install: ./gradlew clean
 jdk:
-  - oraclejdk8
+- oraclejdk8
 services: mongodb
 notifications:
   email: true
+  hipchat:
+    rooms:
+      secure: mMFgjrSodmOm2qI71FVH/2XJ+dSP7q6LkVHgy+l7/KCfCpl6EdVdtHTEfvzKrTtN8KlQoTYmyC5HZ1X/jS0jp1xDrjMbMaqmzJk0qcBYpyMKQ9AtCG8cPeAtXrF0bnhEvY1DeYikI0PUnd6wzIqAUIEFJ6c2DAS1pQSp+qqiiASdpsqEfVeYrekiFfhRaobTz8Hdqb+DBy0j+2UoHfZ7Y2pAdHmTJvsY2EdcVBYSN4LkDY8P6dZ736Erv/130FEVy72+0fAqOdGC48Bg+3u5ygxAixnszDaoO+2v3JKhAPbUunYQ+BTyU5VKz0/0M8CMZtO3hvXg+o+rzieMBoKzOlJAn7BnCItyQv9pPEBChXHf4ET2TX89NVW6h/9QYuzl7kebd+O9E1ArLva6KTMvcPc1GWQtY/5MDiK/IbUN6nQPm6F9AOxZP6BKkdH23iG4s8byVpUWWuCUJiZtdvNMzEcD9TpMhGg4isUY8Aah/STFk/JPNbMJhG17qVguSIRF3bBiI8TsqJb7zSLYKq+awlbxoVdbP5WhI8DIG88ddi2L7b6jqHAbCYSG6kSS1Pig//98eBsyakjzt6wNYU+Noze9jq9u1S7AeS9uiW+ZELG398vXHSQNT1dhnUeHgWRyIjZGYeiTWvRZONFu6LS7X8CRmo5ffUB6Y5qCU/zzs40=
 install:
-  - ./gradlew clean build test jacocoTestReport
-
+- ./gradlew clean build test jacocoTestReport
 after_success:
-  - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-  - if [ -e ./gradlew ]; then ./gradlew jacocoTestReport;else gradle jacocoTestReport;fi
-  - find . -type f -regex ".*/target/.*-reports/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-  - find . -type f -regex ".*/build/test-results/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-  - bash <(curl -s https://codecov.io/bash)
+- mkdir -p $CIRCLE_TEST_REPORTS/junit/
+- if [ -e ./gradlew ]; then ./gradlew jacocoTestReport;else gradle jacocoTestReport;fi
+- find . -type f -regex ".*/target/.*-reports/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/\;
+- find . -type f -regex ".*/build/test-results/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/\;
+- bash <(curl -s https://codecov.io/bash)
+deploy:
+  provider: releases
+  api_key:
+    secure: tcNUhCWHJo6eR6ykmpb21BknYcH5C4I8KeHgrD/do0OvKxhULrGH0z2VJnERHcTh3d2BwQAZ0HKUJ3I6H2VLAFGnpWhOx41n58rTWeq06cJifHSyEjOMS358ObSZM1pl9bNBREkhZ1xtR5CmPRo+nuEv7zKfusiYr514wgunvuICy0LKTWOSyYY/0OUhneuyB6Qi7yiCXJMw0aezMqiHuxczn8ccE7O3rc148/LZk+s+OPUZTn8sPye48IeAFvs/2rooGGbQ7fooCt+oz99ezd5Xw7eJDipP1sLb3m+ZtNVCzlsp5/hOGK3UG8RCZxFWLO27usoyqCx/lfxSuNq0mu5agEjw1XXcpYwQ+gh6l05jWlkZsTdFeT+9wtya8XEUDNqsZxfXXobsUj1o/jYqCgyfROXNDoWNJcnWh+IX0RKnTR+PDOWgTBHN5rt6Dw8JLnM772cveNJPo8dBS0lGBmYUcyHJsSppCJC2dT9ZUA+vT1Uyj6wSqv3T76kLIgJbKDsUMIXPpQlJChgP4STI0HGvWIaBOZNEzL++fNA9J82vLyEofyEK0C+k84e756XipQxTFWKB5Ckl4UVqtsxuduJGUGk0RiDcnIR9MnyfJmJP4TXh2ZLmWCcwPf5yv8lrtxyeC9t8LbPKGKkHuKg+MbJKJzaDLxsBgqHfWbUVuHg=
+  file: builld/libs/kotlin-tech-board-1.0.0-SNAPSHOT.jar
+  on:
+    repo: tiarebalbi/kotlin-tech-board
+
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: kotlin-tech-board-staging
