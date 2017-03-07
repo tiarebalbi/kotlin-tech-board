@@ -12,12 +12,12 @@ import org.springframework.web.reactive.function.server.HandlerStrategies
 @Configuration
 open class MongoConfiguration {
 
-    @Bean
-    open fun setupMongoTemplate(env: Environment): ReactiveMongoTemplate =
-            ReactiveMongoTemplate(SimpleReactiveMongoDatabaseFactory(ConnectionString(env.getProperty("mongo.uri"))))
+  @Bean
+  open fun setupMongoTemplate(env: Environment): ReactiveMongoTemplate =
+    ReactiveMongoTemplate(SimpleReactiveMongoDatabaseFactory(ConnectionString(env.getProperty("mongo.uri"))))
 
-    @Bean
-    open fun dataInitializer() = ApplicationRunner {
-        HandlerStrategies.withDefaults()
-    }
+  @Bean
+  open fun dataInitializer() = ApplicationRunner {
+    HandlerStrategies.withDefaults()
+  }
 }

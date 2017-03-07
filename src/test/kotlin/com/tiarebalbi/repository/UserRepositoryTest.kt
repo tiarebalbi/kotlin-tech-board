@@ -74,20 +74,18 @@ class UserRepositoryTest : AbstractIntegrationTests() {
       .verifyComplete()
   }
 
+  @Test
   fun `Should find all records in the database`() {
-    // given
-    this.repository.save(getUser())
+    this.repository.save(getUser()).doOnSuccess {
+      val data = this.repository.findAll()
 
-    // when
-    val data = this.repository.findAll()
-
-    // then
-    StepVerifier.create(data)
-      .consumeRecordedWith {
-        assertThat(it).isNotNull()
-        assertThat(it.size).isEqualTo(1)
-      }
-      .verifyComplete()
+      StepVerifier.create(data)
+        .consumeRecordedWith {
+          assertThat(it).isNotNull()
+          assertThat(it.size).isEqualTo(1)
+        }
+        .verifyComplete()
+    }
   }
 
   private fun getUser() = User("me@tiarebalbi.com", "Tiare", "Balbi")
