@@ -65,25 +65,23 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
   }
 
   @Test
-  fun `Should find all users`() {
-    val user1 = this.repository.save(getTopic())
-    val user2 = this.repository.save(getTopic("2"))
+  fun `Should find all topics`() {
+    val topic1 = this.repository.save(getTopic())
+    val topic2 = this.repository.save(getTopic("New Topic"))
 
-    val flow = Mono.from(user1)
-      .concatWith(user2)
+    val flow = Mono.from(topic1)
+      .concatWith(topic2)
       .concatWith(this.repository.findAll())
 
     StepVerifier.create(flow)
       .expectNextCount(2)
       .consumeNextWith {
         assertThat(it).isNotNull()
-        assertThat(it.id).isEqualTo("1")
         assertThat(it.name).isEqualTo("New Topic")
         assertThat(it.slug).isEqualTo("new-topic")
       }
       .consumeNextWith {
         assertThat(it).isNotNull()
-        assertThat(it.id).isEqualTo("2")
         assertThat(it.name).isEqualTo("New Topic")
         assertThat(it.slug).isEqualTo("new-topic")
       }
@@ -92,24 +90,23 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
 
   @Test
   fun `Should be able to find by slug`() {
-    val user1 = this.repository.save(getTopic("2", "Custom Topic"))
+    val user1 = this.repository.save(getTopic("Custom Topic"))
     val flow = user1.concatWith(this.repository.findBySlug("custom-topic"))
 
     StepVerifier.create(flow)
       .expectNextCount(2)
       .consumeNextWith {
         assertThat(it).isNotNull()
-        assertThat(it.id).isEqualTo("3")
         assertThat(it.name).isEqualTo("Custom Topic")
+        assertThat(it.slug).isEqualTo("custom-topic")
       }
       .consumeNextWith {
         assertThat(it).isNotNull()
-        assertThat(it.id).isEqualTo("3")
         assertThat(it.name).isEqualTo("Custom Topic")
         assertThat(it.slug).isEqualTo("custom-topic")
       }
       .expectComplete()
   }
 
-  private fun getTopic(id: String = "1", name: String = "New Topic") = Topic(id, name)
+  private fun getTopic(name: String = "New Topic") = Topic(name)
 }

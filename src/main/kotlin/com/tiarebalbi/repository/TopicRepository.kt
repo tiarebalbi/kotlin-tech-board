@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono
 @Repository
 open class TopicRepository(val template: ReactiveMongoTemplate) {
 
+  fun save(topic: Mono<Topic>): Mono<Topic> = template.save(topic)
+
   fun save(topic: Topic): Mono<Topic> = template.save(topic)
 
   fun findBySlug(slug: String): Mono<Topic> = template.findOne(query(where("slug").`is`(slug)))
@@ -24,5 +26,5 @@ open class TopicRepository(val template: ReactiveMongoTemplate) {
 
   fun deleteAll() = template.remove<Topic>(Query())
 
-  fun deleteBySlug(slug: String?) = template.remove<Topic>(query(where("slug").`is`(slug)))
+  fun deleteBySlug(slug: String) = template.remove<Topic>(query(where("slug").`is`(slug)))
 }

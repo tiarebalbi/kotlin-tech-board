@@ -13,9 +13,9 @@ open class TechBoardApplication {
   @Bean
   fun routerFunction(routesProvider: List<RouterFunctionProvider>) =
     routesProvider.map { it.invoke() }.reduce(RouterFunction<ServerResponse>::and)
-  
-}
 
+}
 fun main(args: Array<String>) {
   run(TechBoardApplication::class, *args)
 }
+

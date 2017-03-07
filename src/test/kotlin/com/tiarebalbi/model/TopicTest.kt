@@ -37,6 +37,6 @@ class TopicTest {
   }
 
 
-  private fun getTopic(name: String) = Topic("1", name)
+  private fun getTopic(name: String) = Topic(name)
 
 }
