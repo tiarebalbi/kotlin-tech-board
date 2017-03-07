@@ -23,4 +23,5 @@ open class UserRepository(val template: ReactiveMongoTemplate) {
 
   fun save(user: Mono<User>) = template.save(user)
 
+  fun count(query: Query) = template.count(query, User::class.java)
 }
