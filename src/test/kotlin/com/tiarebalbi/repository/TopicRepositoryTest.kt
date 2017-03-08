@@ -16,7 +16,7 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
 
   @Before
   fun setUp() {
-    this.repository.deleteAll()
+    this.repository.deleteAll().block()
   }
 
   @Test
@@ -51,11 +51,13 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
         assertThat(it).isNotNull()
         assertThat(it.name).isEqualTo("New Topic")
         assertThat(it.slug).isEqualTo("new-topic")
+        assertThat(it.version).isEqualTo(1)
       }
       .consumeNextWith {
         assertThat(it).isNotNull()
         assertThat(it.name).isEqualTo("New name")
         assertThat(it.slug).isEqualTo("new-name")
+        assertThat(it.version).isEqualTo(2)
       }
       .expectComplete()
 

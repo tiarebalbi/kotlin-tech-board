@@ -65,12 +65,6 @@ configure<JavaPluginConvention> {
   setTargetCompatibility(1.8)
 }
 
-
-
-configure<SpringBootPluginExtension> {
-  mainClass = "com.tiarebalbi.TechBoardApplication"
-}
-
 (getTasksByName("jacocoTestReport", false).first() as JacocoReport).apply {
   reports {
     it.xml.isEnabled = true

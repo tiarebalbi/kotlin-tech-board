@@ -7,8 +7,8 @@ import com.tiarebalbi.model.Topic
 import com.tiarebalbi.repository.TopicRepository
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -24,66 +24,66 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
   @Autowired
   lateinit var repository: TopicRepository
 
-  @After
+  @Before
   fun tearDown() {
-    this.repository.deleteAll()
+    this.repository.deleteAll().block()
   }
 
   @Test
   fun `Should access information about one topic`() {
-    this.repository.save(Topic("New Topic"))
-      .doOnSuccess {
-        val topic = client
-          .get()
-          .uri("/api/topic/new-topic")
-          .accept(MediaType.APPLICATION_JSON)
-          .exchange()
-          .then { r -> r.bodyToMono<Topic>() }
+    this.repository.save(Topic("This is a cool topic")).doOnSuccess {
 
-        StepVerifier.create(topic)
-          .consumeNextWith {
-            Assert.assertEquals("new-topic", it.slug)
-            Assert.assertEquals("New Topic", it.name)
-          }
-          .verifyComplete()
-      }
+      val topic = client
+        .get()
+        .uri("/api/topic/this-is-a-cool-topic")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .then { r -> r.bodyToMono<Topic>() }
+
+      StepVerifier.create(topic)
+        .consumeNextWith {
+          Assert.assertEquals("this-is-a-cool-topic", it.slug)
+          Assert.assertEquals("This is a cool topic", it.name)
+        }
+        .verifyComplete()
+
+    }
   }
 
   @Test
   fun `Should access all topics in the database`() {
     this.repository.save(Topic("New Topic"))
       .concatWith(this.repository.save(Topic("Custom Topic")))
-      .doOnComplete {
-        val topics = client
-          .get()
-          .uri("/api/topic")
-          .accept(MediaType.APPLICATION_JSON).exchange()
-          .flatMap { it.bodyToFlux<Topic>() }
+      .blockLast()
 
-        StepVerifier.create(topics)
-          .expectNextCount(2)
-          .verifyComplete()
-      }
+    val topics = client
+      .get()
+      .uri("/api/topic")
+      .accept(MediaType.APPLICATION_JSON).exchange()
+      .flatMap { it.bodyToFlux<Topic>() }
+
+    StepVerifier.create(topics)
+      .expectNextCount(2)
+      .verifyComplete()
 
   }
 
   @Test
   fun `Should send a request to remove a topic`() {
-    this.repository.save(Topic("New Topic"))
-      .doOnSuccess {
-        val topics = client
-          .delete()
-          .uri("/api/topic/new-topic")
-          .accept(MediaType.APPLICATION_JSON)
-          .exchange()
-          .then { r -> r.bodyToMono<DeleteResult>() }
+    this.repository.save(Topic("New Topic")).block()
 
-        StepVerifier.create(topics)
-          .consumeNextWith {
-            Assertions.assertThat(it.deletedCount).isEqualTo(1)
-          }
-          .verifyComplete()
+    val topics = client
+      .delete()
+      .uri("/api/topic/new-topic")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .then { r -> r.bodyToMono<DeleteResult>() }
+
+    StepVerifier.create(topics)
+      .consumeNextWith {
+        Assertions.assertThat(it.deletedCount).isEqualTo(1)
       }
+      .verifyComplete()
   }
 
   @Test
@@ -93,14 +93,15 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
       .uri("/api/topic")
       .accept(MediaType.APPLICATION_JSON)
       .contentType(MediaType.APPLICATION_JSON)
-      .exchange(Topic("Topic").toMono())
+      .exchange(Topic("Data Topic").toMono())
       .flatMap { it.bodyToMono<Topic>() }
 
     StepVerifier.create(user)
       .consumeNextWith {
-        assertThat(it.slug).isEqualTo("topic")
-        assertThat(it.name).isEqualTo("Topic")
+        assertThat(it.slug).isEqualTo("data-topic")
+        assertThat(it.name).isEqualTo("Data Topic")
         assertThat(it.color).isEqualTo(Color.GREY)
+        assertThat(it.version).isEqualTo(0)
       }
       .verifyComplete()
   }
