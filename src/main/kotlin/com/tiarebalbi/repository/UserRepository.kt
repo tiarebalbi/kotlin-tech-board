@@ -1,5 +1,6 @@
 package com.tiarebalbi.repository
 
+import com.tiarebalbi.model.Topic
 import com.tiarebalbi.model.User
 import com.tiarebalbi.support.findAll
 import com.tiarebalbi.support.findById
@@ -13,11 +14,11 @@ import reactor.core.publisher.Mono
 @Repository
 open class UserRepository(val template: ReactiveMongoTemplate) {
 
-  fun findAll(): Flux<User> = template.findAll(User::class)
+  fun findAll(): Flux<User> = template.findAll()
 
-  fun findOne(id: String) = template.findById(id, User::class)
+  fun findOne(id: String): Mono<User> = template.findById(id)
 
-  fun deleteAll() = template.remove(Query(), User::class)
+  fun deleteAll() = template.remove<Topic>(Query())
 
   fun save(user: User) = template.save(user)
 

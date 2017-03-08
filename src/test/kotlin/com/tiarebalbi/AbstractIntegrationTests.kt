@@ -1,11 +1,10 @@
 package com.tiarebalbi
 
+import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.web.reactive.function.client.ExchangeFunctions
 import org.springframework.web.reactive.function.client.WebClient
 
 @RunWith(SpringRunner::class)
@@ -13,10 +12,13 @@ import org.springframework.web.reactive.function.client.WebClient
 abstract class AbstractIntegrationTests {
 
   @LocalServerPort
-  var port: Int = 0
+  var port: Int? = null
 
-  val client = WebClient.builder()
-    .exchangeFunction(ExchangeFunctions.create(ReactorClientHttpConnector()))
-    .build()
+  lateinit var client: WebClient
+
+  @Before
+  fun setup() {
+    client = WebClient.create("http://localhost:$port")
+  }
 
 }
