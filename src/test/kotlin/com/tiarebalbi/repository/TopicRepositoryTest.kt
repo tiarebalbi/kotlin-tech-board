@@ -3,7 +3,7 @@ package com.tiarebalbi.repository
 import com.tiarebalbi.AbstractIntegrationTests
 import com.tiarebalbi.model.Topic
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
+import org.junit.After
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import reactor.core.publisher.Mono
@@ -14,9 +14,9 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
   @Autowired
   lateinit var repository: TopicRepository
 
-  @Before
-  fun setUp() {
-    this.repository.deleteAll().block()
+  @After
+  fun tearDown() {
+    this.repository.deleteAll()
   }
 
   @Test

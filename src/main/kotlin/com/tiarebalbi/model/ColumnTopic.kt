@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class ColumnTopic(
   @Id val id: String,
   val name: String,
-  @Indexed val topic: String,
+  @Indexed val topicSlug: String,
   val color: Color = Color.BLUE,
-  @Version val version: Int = 0
+  @Version var version: Int? = null
 )

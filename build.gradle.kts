@@ -81,11 +81,12 @@ val reactorVersion = "3.0.5.RELEASE"
 dependencies {
   compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion")
   compile("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+  compile("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+  compile("org.springframework.boot:spring-boot-starter-actuator")
   compile("org.springframework.boot:spring-boot-starter-webflux") {
     exclude(module = "hibernate-validator")
   }
   compile("io.projectreactor:reactor-kotlin:1.0.0.BUILD-SNAPSHOT")
-  compile("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
   compile("com.atlassian.commonmark:commonmark:0.8.0")
   compile("io.projectreactor:reactor-core:$reactorVersion")
   compile("io.projectreactor.ipc:reactor-netty:0.6.0.RELEASE")
