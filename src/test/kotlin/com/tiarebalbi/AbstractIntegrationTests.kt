@@ -8,8 +8,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -36,11 +36,10 @@ abstract class AbstractIntegrationTests {
     client = WebClient.create("http://localhost:$port")
   }
 
-
   @Before
   fun setupTestData() {
     if (testDataDependency.needsTestData()) {
-      this.testDataPopulator.populateDatabaseUsingJsonResourcesFromClasspath(testDataDependency.data(), testDataDependency.collection())
+      this.testDataPopulator.populateDatabaseUsingJsonResourcesFromClasspath(testDataDependency.data()!!, testDataDependency.collection()!!)
     }
   }
 

@@ -6,7 +6,7 @@ import org.junit.runners.model.Statement
 
 class TestDataDependencyRule : TestRule {
 
-  lateinit var needsTestData: NeedsTestData
+  var needsTestData: NeedsTestData? = null
 
   override fun apply(base: Statement, description: Description): Statement {
     needsTestData = description.getAnnotation(NeedsTestData::class.java)
@@ -15,7 +15,7 @@ class TestDataDependencyRule : TestRule {
 
   fun needsTestData() = needsTestData != null
 
-  fun data() = needsTestData.value
+  fun data() = needsTestData?.value
 
-  fun collection() = needsTestData.collection
+  fun collection() = needsTestData?.collection
 }

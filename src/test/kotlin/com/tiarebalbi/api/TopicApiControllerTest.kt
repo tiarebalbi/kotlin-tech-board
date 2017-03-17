@@ -6,11 +6,10 @@ import com.tiarebalbi.model.ColumnTopic
 import com.tiarebalbi.model.DeleteResult
 import com.tiarebalbi.model.Topic
 import com.tiarebalbi.repository.ColumnTopicRepository
-import com.tiarebalbi.repository.TopicRepository
+import com.tiarebalbi.test.NeedsCleanUp
 import com.tiarebalbi.test.NeedsTestData
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
 import org.junit.Assert
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,16 +24,7 @@ import toMono
 class TopicApiControllerTest : AbstractIntegrationTests() {
 
   @Autowired
-  lateinit var topicRepository: TopicRepository
-
-  @Autowired
   lateinit var columnRepository: ColumnTopicRepository
-
-  @After
-  fun setUp() {
-    this.topicRepository.deleteAll()
-    this.columnRepository.deleteAll()
-  }
 
   @Test
   @NeedsTestData(value = "mock/topics.json", collection = "topic")
@@ -52,47 +42,47 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
         Assert.assertEquals("My New Topic", it.name)
         Assert.assertEquals(Color.BLUE, it.color)
       }
-      .verifyComplete()
+      .expectComplete()
   }
 
   @Test
+  @NeedsTestData(value = "mock/topics.json", collection = "topic")
   fun `Should access all topics in the database`() {
-    this.topicRepository.save(Topic("New Topic"))
-      .concatWith(this.topicRepository.save(Topic("Custom Topic")))
-      .doOnComplete {
-        val topics = client
-          .get()
-          .uri("/api/topic")
-          .accept(MediaType.APPLICATION_JSON).exchange()
-          .flatMap { it.bodyToFlux<Topic>() }
+    val topics = client
+      .get()
+      .uri("/api/topic")
+      .accept(MediaType.APPLICATION_JSON).exchange()
+      .flatMap { it.bodyToFlux<Topic>() }
 
-        StepVerifier.create(topics)
-          .expectNextCount(2)
-          .verifyComplete()
-
+    StepVerifier.create(topics)
+      .consumeNextWith {
+        Assert.assertEquals("my-new-topic", it.slug)
+        Assert.assertEquals("My New Topic", it.name)
+        Assert.assertEquals(Color.BLUE, it.color)
       }
+      .expectComplete()
   }
 
   @Test
+  @NeedsTestData(value = "mock/topics.json", collection = "topic")
   fun `Should send a request to remove a topic`() {
-    this.topicRepository.save(Topic("New Topic")).doOnSuccess {
-      val topics = client
-        .delete()
-        .uri("/api/topic/new-topic")
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .then { r -> r.bodyToMono<DeleteResult>() }
+    val topics = client
+      .delete()
+      .uri("/api/topic/new-topic")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .then { r -> r.bodyToMono<DeleteResult>() }
 
-      StepVerifier.create(topics)
-        .consumeNextWith {
-          Assertions.assertThat(it.deletedCount).isEqualTo(1)
-        }
-        .verifyComplete()
-    }
+    StepVerifier.create(topics)
+      .consumeNextWith {
+        Assertions.assertThat(it.deletedCount).isEqualTo(1)
+      }
+      .expectComplete()
 
   }
 
   @Test
+  @NeedsCleanUp
   fun `Should create a new topic using the API`() {
     val user = client
       .post()
@@ -104,76 +94,67 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
 
     StepVerifier.create(user)
       .consumeNextWith {
-        assertThat(it.slug).isEqualTo("data-topic")
-        assertThat(it.name).isEqualTo("Data Topic")
-        assertThat(it.color).isEqualTo(Color.GREY)
+        Assert.assertEquals("data-topic", it.slug)
+        Assert.assertEquals("Data Topic", it.name)
+        Assert.assertEquals(Color.GREY, it.color)
         assertThat(it.version).isEqualTo(0)
       }
-      .verifyComplete()
+      .expectComplete()
   }
 
   @Test
+  @NeedsTestData(value = "mock/topics.json", collection = "topic")
   fun `Should find all column from a topic`() {
-    this.topicRepository.save(Topic("New Topic")).doOnSuccess {
-      this.columnRepository.save(ColumnTopic("1", "Column 1", "new-topic")).block()
-      this.columnRepository.save(ColumnTopic("2", "Column 2", "new-topic")).block()
-    }.doFinally {
+    val columns = client
+      .get()
+      .uri("/api/topic/my-new-topic/columns")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .flatMap { it.bodyToFlux<ColumnTopic>() }
 
-      val columns = client
-        .get()
-        .uri("/api/topic/new-topic/columns")
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .flatMap { it.bodyToFlux<ColumnTopic>() }
-
-      StepVerifier.create(columns)
-        .consumeNextWith {
-          assertThat(it.topicSlug).isEqualTo("new-topic")
-          assertThat(it.name).isEqualTo("Column 1")
-          assertThat(it.color).isEqualTo(Color.BLUE)
-          assertThat(it.version).isEqualTo(0)
-        }
-        .consumeNextWith {
-          assertThat(it.topicSlug).isEqualTo("new-topic")
-          assertThat(it.name).isEqualTo("Column 2")
-          assertThat(it.color).isEqualTo(Color.BLUE)
-          assertThat(it.version).isEqualTo(0)
-        }
-        .verifyComplete()
-
-    }
+    StepVerifier.create(columns)
+      .consumeNextWith {
+        assertThat(it.topicSlug).isEqualTo("my-new-topic")
+        assertThat(it.name).isEqualTo("Column 1")
+        assertThat(it.color).isEqualTo(Color.BLUE)
+        assertThat(it.version).isEqualTo(0)
+      }
+      .consumeNextWith {
+        assertThat(it.topicSlug).isEqualTo("my-new-topic")
+        assertThat(it.name).isEqualTo("Column 2")
+        assertThat(it.color).isEqualTo(Color.BLUE)
+        assertThat(it.version).isEqualTo(0)
+      }
+      .expectComplete()
   }
 
   @Test
+  @NeedsTestData(value = "mock/topics.json", collection = "topic")
   fun `Should save a new column in a topic`() {
-    this.topicRepository.save(Topic("New Topic")).doOnSuccess {
+    val column = ColumnTopic("1", "Column Name", "new-topic")
 
-      val column = ColumnTopic("1", "Column Name", it.slug)
+    val columns = client
+      .post()
+      .uri("/api/topic/new-topic/columns")
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .exchange(column.toMono())
+      .then { r -> r.bodyToMono<ColumnTopic>() }
 
-      val columns = client
-        .post()
-        .uri("/api/topic/new-topic/columns")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .exchange(column.toMono())
-        .then { r -> r.bodyToMono<ColumnTopic>() }
-
-      StepVerifier.create(columns)
-        .consumeNextWith {
-          assertThat(it.topicSlug).isEqualTo("data-topic")
-          assertThat(it.name).isEqualTo("Column Name")
-          assertThat(it.color).isEqualTo(Color.BLUE)
-          assertThat(it.version).isEqualTo(0)
-        }
-        .expectComplete()
-    }
-
+    StepVerifier.create(columns)
+      .consumeNextWith {
+        assertThat(it.topicSlug).isEqualTo("new-topic")
+        assertThat(it.name).isEqualTo("Column Name")
+        assertThat(it.color).isEqualTo(Color.BLUE)
+        assertThat(it.version).isEqualTo(0)
+      }
+      .expectComplete()
   }
 
   @Test
+  @NeedsTestData(value = "mock/topics.json", collection = "topic")
   fun `Should delete a column from a topic`() {
-    val topic = this.topicRepository.save(Topic("New Topic")).block()
-    this.columnRepository.save(ColumnTopic("1", "Column 1", topic.slug)).block()
+    this.columnRepository.save(ColumnTopic("1", "Column 1", "new-topic")).block()
 
     val columns = client
       .delete()
@@ -186,7 +167,7 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
       .consumeNextWith {
         Assertions.assertThat(it.deletedCount).isEqualTo(1)
       }
-      .verifyComplete()
+      .expectComplete()
 
   }
 }
