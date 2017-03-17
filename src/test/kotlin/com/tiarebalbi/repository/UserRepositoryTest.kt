@@ -3,6 +3,7 @@ package com.tiarebalbi.repository
 import com.tiarebalbi.AbstractIntegrationTests
 import com.tiarebalbi.model.Role
 import com.tiarebalbi.model.User
+import com.tiarebalbi.test.NeedsCleanUp
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -17,8 +18,8 @@ class UserRepositoryTest : AbstractIntegrationTests() {
   lateinit var repository: UserRepository
 
   @Before
+  @NeedsCleanUp
   fun setUp() {
-    this.repository.deleteAll()
   }
 
   @Test

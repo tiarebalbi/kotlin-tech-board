@@ -1,41 +1,37 @@
 package com.tiarebalbi.api
 
+import com.tiarebalbi.model.ColumnTopic
 import com.tiarebalbi.model.Topic
+import com.tiarebalbi.repository.ColumnTopicRepository
 import com.tiarebalbi.repository.TopicRepository
-import com.tiarebalbi.support.RouterFunctionProvider
-import com.tiarebalbi.support.json
-import org.springframework.http.MediaType
-import org.springframework.stereotype.Controller
-import org.springframework.web.reactive.function.server.Routes
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.ServerResponse.created
-import org.springframework.web.reactive.function.server.ServerResponse.ok
-import org.springframework.web.reactive.function.server.body
-import org.springframework.web.reactive.function.server.bodyToMono
-import toMono
-import java.net.URI
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
+import org.springframework.web.bind.annotation.*
 
-@Controller
-class TopicApiController(val repository: TopicRepository) : RouterFunctionProvider() {
+@RestController
+@RequestMapping("/api/topic")
+class TopicApiController(val topicRepository: TopicRepository, val columnRepository: ColumnTopicRepository) {
 
-  override val routes: Routes = {
-    accept(MediaType.APPLICATION_JSON).route {
-      "/api/topic".route {
-        GET("/", this@TopicApiController::findAll)
-        GET("/{slug}", this@TopicApiController::findBySlug)
-        DELETE("/{slug}", this@TopicApiController::deleteBySlug)
-        POST("/", this@TopicApiController::save)
-      }
-    }
-  }
+  @GetMapping
+  fun findAll(@PageableDefault pageable: Pageable) = this.topicRepository.findAll(pageable)
 
-  fun findAll(req: ServerRequest) = ok().json().body(this.repository.findAll())
+  @GetMapping("/{slug}")
+  fun findBySlug(@PathVariable slug: String) = this.topicRepository.findBySlug(slug)
 
-  fun findBySlug(req: ServerRequest) = ok().json().body(this.repository.findBySlug(req.pathVariable("slug")))
+  @PostMapping
+  fun saveTopic(@RequestBody topic: Topic) = this.topicRepository.save(topic)
 
-  fun deleteBySlug(req: ServerRequest) = ok().json().body(this.repository.deleteBySlug(req.pathVariable("slug")))
+  @DeleteMapping("/{slug}")
+  fun deleteBySlug(@PathVariable slug: String) = this.topicRepository.deleteBySlug(slug)
 
-  fun save(req: ServerRequest) = this.repository.save(req.bodyToMono<Topic>()).then { topic ->
-    created(URI.create("/api/topic/${topic.slug}")).json().body(topic.toMono())
-  }
+  @GetMapping("/{slug}/columns")
+  fun findColumnsByTopicSlug(@PathVariable slug: String) = this.columnRepository.findByTopicSlug(slug)
+
+  @PostMapping("/{slug}/columns")
+  fun saveColumnTopic(@RequestBody columnTopic: ColumnTopic) = this.columnRepository.save(columnTopic)
+
+  @DeleteMapping("/{slug}/columns/{id}")
+  fun deleteColumnById(@PathVariable id: String) = this.columnRepository.deleteById(id)
+
 }
+

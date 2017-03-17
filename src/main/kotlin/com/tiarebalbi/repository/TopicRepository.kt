@@ -1,8 +1,11 @@
 package com.tiarebalbi.repository
 
 import com.tiarebalbi.model.Topic
+import com.tiarebalbi.support.findAll
 import com.tiarebalbi.support.findOne
 import com.tiarebalbi.support.remove
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -22,7 +25,7 @@ open class TopicRepository(val template: ReactiveMongoTemplate) {
 
   fun count(): Mono<Long> = template.count(Query(), Topic::class.java)
 
-  fun findAll(): Flux<Topic> = template.findAll(Topic::class.java)
+  fun findAll(pageable: Pageable = PageRequest(0, 25)): Flux<Topic> = template.findAll(pageable)
 
   fun deleteAll() = template.remove<Topic>(Query())
 
