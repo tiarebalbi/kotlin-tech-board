@@ -6,14 +6,12 @@ import org.junit.runners.model.Statement
 
 class TestCleanUpDependencyRule : TestRule {
 
-  internal var needsCleanUp: NeedsCleanUp? = null
+  var needsCleanUp: NeedsCleanUp? = null
 
   override fun apply(base: Statement, description: Description): Statement {
     needsCleanUp = description.getAnnotation(NeedsCleanUp::class.java)
     return base
   }
 
-  fun needsCleanUp(): Boolean {
-    return needsCleanUp != null
-  }
+  fun needsCleanUp(): Boolean = needsCleanUp != null
 }
