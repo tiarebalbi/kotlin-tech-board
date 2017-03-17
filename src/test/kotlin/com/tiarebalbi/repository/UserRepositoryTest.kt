@@ -18,7 +18,7 @@ class UserRepositoryTest : AbstractIntegrationTests() {
 
   @Before
   fun setUp() {
-    this.repository.deleteAll()
+    this.repository.deleteAll().block()
   }
 
   @Test

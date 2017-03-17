@@ -1,0 +1,9 @@
+[
+  {
+    "slug": "my-new-topic",
+    "name": "My New Topic",
+    "description": "",
+    "color": "BLUE",
+    "_class": "com.tiarebalbi.model.Topic"
+  }
+]

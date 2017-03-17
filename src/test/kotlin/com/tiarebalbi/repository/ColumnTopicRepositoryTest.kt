@@ -21,26 +21,26 @@ class ColumnTopicRepositoryTest : AbstractIntegrationTests() {
 
   @Before
   fun setUp() {
-    this.topicRepository.save(Topic("New Topic")).block()
+    this.topicRepository.save(Topic("New Column Topic")).block()
   }
 
   @After
   fun tearDown() {
-    this.topicRepository.deleteAll()
-    this.columnRepository.deleteAll()
+    this.topicRepository.deleteAll().block()
+    this.columnRepository.deleteAll().block()
   }
 
   @Test
   fun `Should save a new column`() {
 
-    val column = ColumnTopic("1", "My Column's Name", "new-topic")
+    val column = ColumnTopic("1", "My Column's Name", "new-column-topic")
 
     val result = this.columnRepository.save(column)
 
     StepVerifier.create(result)
       .consumeNextWith {
         assertThat(it.name).isEqualTo("My Column's Name")
-        assertThat(it.topicSlug).isEqualTo("new-topic")
+        assertThat(it.topicSlug).isEqualTo("new-column-topic")
         assertThat(it.version).isEqualTo(0)
         assertThat(it.color).isEqualTo(Color.BLUE)
       }
@@ -49,15 +49,15 @@ class ColumnTopicRepositoryTest : AbstractIntegrationTests() {
 
   @Test
   fun `Should find by topic slug`() {
-    val column = ColumnTopic("1", "My Column's Name", "new-topic")
+    val column = ColumnTopic("1", "My Column's Name", "new-column-topic")
     this.columnRepository.save(column).block()
 
-    val result = this.columnRepository.findByTopicSlug("new-topic")
+    val result = this.columnRepository.findByTopicSlug("new-column-topic")
 
     StepVerifier.create(result)
       .consumeNextWith {
         assertThat(it.name).isEqualTo("My Column's Name")
-        assertThat(it.topicSlug).isEqualTo("new-topic")
+        assertThat(it.topicSlug).isEqualTo("new-column-topic")
         assertThat(it.version).isEqualTo(0)
         assertThat(it.color).isEqualTo(Color.BLUE)
       }
@@ -66,7 +66,7 @@ class ColumnTopicRepositoryTest : AbstractIntegrationTests() {
 
   @Test
   fun `Should delete by column ID`() {
-    val column = ColumnTopic("1", "My Column's Name", "new-topic")
+    val column = ColumnTopic("1", "My Column's Name", "new-column-topic")
     this.columnRepository.save(column).block()
 
     val result = this.columnRepository.deleteById("1")
@@ -79,8 +79,8 @@ class ColumnTopicRepositoryTest : AbstractIntegrationTests() {
 
   @Test
   fun `Should delete all column from the collection`() {
-    this.columnRepository.save(ColumnTopic("1", "My Column 1", "new-topic")).block()
-    this.columnRepository.save(ColumnTopic("2", "My Column 2", "new-topic")).block()
+    this.columnRepository.save(ColumnTopic("1", "My Column 1", "new-column-topic")).block()
+    this.columnRepository.save(ColumnTopic("2", "My Column 2", "new-column-topic")).block()
 
     val result = this.columnRepository.deleteAll()
     StepVerifier.create(result)

@@ -16,7 +16,7 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
 
   @After
   fun tearDown() {
-    this.repository.deleteAll()
+    this.repository.deleteAll().block()
   }
 
   @Test
