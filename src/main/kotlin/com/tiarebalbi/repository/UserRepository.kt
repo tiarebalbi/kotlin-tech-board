@@ -5,6 +5,8 @@ import com.tiarebalbi.model.User
 import com.tiarebalbi.support.findAll
 import com.tiarebalbi.support.findById
 import com.tiarebalbi.support.remove
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository
@@ -14,7 +16,7 @@ import reactor.core.publisher.Mono
 @Repository
 open class UserRepository(val template: ReactiveMongoTemplate) {
 
-  fun findAll(): Flux<User> = template.findAll()
+  fun findAll(pageable: Pageable = PageRequest(0, 25)): Flux<User> = template.findAll(pageable)
 
   fun findOne(id: String): Mono<User> = template.findById(id)
 

@@ -2,6 +2,7 @@ package com.tiarebalbi.support
 
 import com.mongodb.client.result.DeleteResult
 import org.springframework.boot.SpringApplication
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.http.MediaType
@@ -27,6 +28,13 @@ inline fun <reified T : Any> ReactiveMongoOperations.findById(id: Any): Mono<T> 
 inline fun <reified T : Any> ReactiveMongoOperations.find(query: Query): Flux<T> = find(query, T::class.java)
 
 inline fun <reified T : Any> ReactiveMongoOperations.findAll(): Flux<T> = findAll(T::class.java)
+
+inline fun <reified T : Any> ReactiveMongoOperations.findAll(pageable: Pageable): Flux<T> {
+  val query = Query()
+  query.with(pageable)
+
+  return find(query, T::class.java)
+}
 
 inline fun <reified T : Any> ReactiveMongoOperations.findOne(query: Query): Mono<T> = find(query, T::class.java).next()
 
