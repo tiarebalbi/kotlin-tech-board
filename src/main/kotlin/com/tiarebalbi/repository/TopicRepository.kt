@@ -25,7 +25,7 @@ open class TopicRepository(val template: ReactiveMongoTemplate) {
 
   fun count(): Mono<Long> = template.count(Query(), Topic::class.java)
 
-  fun findAll(pageable: Pageable = PageRequest(0, 25)): Flux<Topic> = template.findAll(pageable)
+  fun findAll(pageable: Pageable = PageRequest.of(0, 25)): Flux<Topic> = template.findAll(pageable)
 
   fun deleteAll() = template.remove<Topic>(Query())
 

@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono
 @Repository
 open class UserRepository(val template: ReactiveMongoTemplate) {
 
-  fun findAll(pageable: Pageable = PageRequest(0, 25)): Flux<User> = template.findAll(pageable)
+  fun findAll(pageable: Pageable = PageRequest.of(0, 25)): Flux<User> = template.findAll(pageable)
 
   fun findOne(id: String): Mono<User> = template.findById(id)
 

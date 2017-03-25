@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.client.bodyToFlux
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.web.reactive.function.client.exchange
 import reactor.test.StepVerifier
-import toMono
+import reactor.core.publisher.toMono
 
 
 class TopicApiControllerTest : AbstractIntegrationTests() {
@@ -89,7 +89,7 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
       .uri("/api/topic")
       .accept(MediaType.APPLICATION_JSON)
       .contentType(MediaType.APPLICATION_JSON)
-      .exchange(Topic("Data Topic").toMono())
+      .exchange(Topic(name = "Data Topic").toMono())
       .flatMap { it.bodyToMono<Topic>() }
 
     StepVerifier.create(user)

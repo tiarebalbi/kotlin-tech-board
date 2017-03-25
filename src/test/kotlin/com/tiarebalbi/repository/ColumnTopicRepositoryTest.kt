@@ -21,7 +21,7 @@ class ColumnTopicRepositoryTest : AbstractIntegrationTests() {
 
   @Before
   fun setUp() {
-    this.topicRepository.save(Topic("New Column Topic")).block()
+    this.topicRepository.save(Topic(name = "New Column Topic")).block()
   }
 
   @After

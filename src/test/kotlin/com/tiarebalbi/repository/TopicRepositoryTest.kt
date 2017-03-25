@@ -2,6 +2,7 @@ package com.tiarebalbi.repository
 
 import com.tiarebalbi.AbstractIntegrationTests
 import com.tiarebalbi.model.Topic
+import com.tiarebalbi.test.NeedsCleanUp
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -15,8 +16,8 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
   lateinit var repository: TopicRepository
 
   @After
+  @NeedsCleanUp
   fun tearDown() {
-    this.repository.deleteAll().block()
   }
 
   @Test
@@ -52,12 +53,14 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
         assertThat(it.name).isEqualTo("New Topic")
         assertThat(it.slug).isEqualTo("new-topic")
         assertThat(it.version).isEqualTo(1)
+        assertThat(it.id).isNotEmpty()
       }
       .consumeNextWith {
         assertThat(it).isNotNull()
         assertThat(it.name).isEqualTo("New name")
         assertThat(it.slug).isEqualTo("new-name")
         assertThat(it.version).isEqualTo(2)
+        assertThat(it.id).isNotEmpty()
       }
       .expectComplete()
 
@@ -81,11 +84,13 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
         assertThat(it).isNotNull()
         assertThat(it.name).isEqualTo("New Topic")
         assertThat(it.slug).isEqualTo("new-topic")
+        assertThat(it.id).isNotEmpty()
       }
       .consumeNextWith {
         assertThat(it).isNotNull()
         assertThat(it.name).isEqualTo("New Topic")
         assertThat(it.slug).isEqualTo("new-topic")
+        assertThat(it.id).isNotEmpty()
       }
       .expectComplete()
   }
@@ -110,5 +115,5 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
       .expectComplete()
   }
 
-  private fun getTopic(name: String = "New Topic") = Topic(name)
+  private fun getTopic(name: String = "New Topic") = Topic(name = name)
 }

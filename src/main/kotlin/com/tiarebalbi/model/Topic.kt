@@ -7,10 +7,11 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 class Topic(
+  @Id var id: String? = null,
   name: String,
   var description: String? = "",
   var color: Color = Color.GREY,
-  @Id var slug: String = name.toSlug(),
+  var slug: String = name.toSlug(),
   @Version var version: Int? = null) {
   var name: String = name
     set(value) {
