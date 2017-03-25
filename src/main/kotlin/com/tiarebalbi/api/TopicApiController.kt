@@ -4,8 +4,6 @@ import com.tiarebalbi.model.ColumnTopic
 import com.tiarebalbi.model.Topic
 import com.tiarebalbi.repository.ColumnTopicRepository
 import com.tiarebalbi.repository.TopicRepository
-import org.springframework.data.domain.Pageable
-import org.springframework.data.web.PageableDefault
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -13,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 class TopicApiController(val topicRepository: TopicRepository, val columnRepository: ColumnTopicRepository) {
 
   @GetMapping
-  fun findAll(@PageableDefault pageable: Pageable) = this.topicRepository.findAll(pageable)
+  fun findAll() = this.topicRepository.findAll()
 
   @GetMapping("/{slug}")
   fun findBySlug(@PathVariable slug: String) = this.topicRepository.findBySlug(slug)

@@ -12,8 +12,8 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.bodyToFlux
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.web.reactive.function.client.exchange
+import reactor.core.publisher.toMono
 import reactor.test.StepVerifier
-import toMono
 
 class CardApiControllerTest : AbstractIntegrationTests() {
 
