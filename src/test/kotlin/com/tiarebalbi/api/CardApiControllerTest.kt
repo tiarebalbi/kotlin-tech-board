@@ -6,7 +6,6 @@ import com.tiarebalbi.model.DeleteResult
 import com.tiarebalbi.test.NeedsCleanUp
 import com.tiarebalbi.test.NeedsTestData
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.bodyToFlux
@@ -17,31 +16,27 @@ import reactor.test.StepVerifier
 
 class CardApiControllerTest : AbstractIntegrationTests() {
 
-  @Before
-  @NeedsCleanUp
-  fun setUp() {
-  }
-
   @Test
+  @NeedsCleanUp
   fun `Should save a new card using the API`() {
     val result = this.client
       .post()
       .uri("/api/card")
       .accept(MediaType.APPLICATION_JSON)
       .contentType(MediaType.APPLICATION_JSON)
-      .exchange(Card("1", "Card 1", "Description 1", "column2").toMono())
+      .exchange(Card(id = "1", name = "Card 1", description = "Description", columnId = "column2").toMono())
       .then { r -> r.bodyToMono<Card>() }
 
     StepVerifier.create(result)
       .consumeNextWith {
         assertThat(it.version).isEqualTo(0)
-        assertThat(it.version).isEqualTo("1")
+        assertThat(it.id).isEqualTo("1")
         assertThat(it.name).isEqualTo("Card 1")
-        assertThat(it.description).isEqualTo("Description 1")
+        assertThat(it.description).isEqualTo("Description")
         assertThat(it.columnId).isEqualTo("column2")
         assertThat(it.createdDate).isNotNull()
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
@@ -58,7 +53,7 @@ class CardApiControllerTest : AbstractIntegrationTests() {
       .consumeNextWith {
         assertThat(it.deletedCount).isEqualTo(1)
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
@@ -66,13 +61,14 @@ class CardApiControllerTest : AbstractIntegrationTests() {
   fun `Should find all card by ID using the API`() {
     val result = this.client
       .get()
-      .uri("/api/card")
+      .uri("/api/card/column1")
       .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
       .exchange()
       .flatMap { r -> r.bodyToFlux<Card>() }
 
     StepVerifier.create(result)
       .expectNextCount(2)
-      .expectComplete()
+      .verifyComplete()
   }
 }

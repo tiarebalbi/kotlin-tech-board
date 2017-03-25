@@ -5,7 +5,6 @@ import com.tiarebalbi.model.Card
 import com.tiarebalbi.test.NeedsCleanUp
 import com.tiarebalbi.test.NeedsTestData
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import reactor.test.StepVerifier
@@ -15,25 +14,21 @@ class CardRepositoryTest : AbstractIntegrationTests() {
   @Autowired
   lateinit var repository: CardRepository
 
-  @Before
-  @NeedsCleanUp
-  fun setUp() {
-  }
-
   @Test
+  @NeedsCleanUp
   fun `Should Save a new Card`() {
-    val result = this.repository.save(Card("1", "My new card", "Description", "column1"))
+    val result = this.repository.save(Card(id = "1", name = "My new card", description = "Description", columnId = "column1"))
 
     StepVerifier.create(result)
       .consumeNextWith {
         assertThat(it.name).isEqualTo("My new card")
         assertThat(it.description).isEqualTo("Description")
         assertThat(it.columnId).isEqualTo("column1")
-        assertThat(it.id).isEqualTo("1")
+        assertThat(it.id).isNotBlank().isEqualTo("1")
         assertThat(it.version).isEqualTo(0)
         assertThat(it.createdDate).isNotNull()
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
@@ -54,6 +49,6 @@ class CardRepositoryTest : AbstractIntegrationTests() {
 
     StepVerifier.create(result)
       .expectNextCount(2)
-      .expectComplete()
+      .verifyComplete()
   }
 }

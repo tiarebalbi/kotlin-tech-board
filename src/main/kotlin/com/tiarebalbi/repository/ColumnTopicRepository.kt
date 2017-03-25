@@ -19,7 +19,7 @@ open class ColumnTopicRepository(val template: ReactiveMongoTemplate) {
 
   fun findByTopicSlug(topicSlug: String): Flux<ColumnTopic> = template.find(query(where("topicSlug").`is`(topicSlug)))
 
-  fun deleteById(id: String) = template.remove<ColumnTopic>(query(where("id").`is`(id)))
+  fun deleteById(id: String): Mono<DeleteResult> = template.remove<ColumnTopic>(query(where("id").`is`(id)))
 
   fun deleteAll(): Mono<DeleteResult> = template.remove<ColumnTopic>(Query())
 

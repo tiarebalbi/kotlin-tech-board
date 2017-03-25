@@ -3,27 +3,25 @@ package com.tiarebalbi.repository
 import com.tiarebalbi.AbstractIntegrationTests
 import com.tiarebalbi.model.Topic
 import com.tiarebalbi.test.NeedsCleanUp
+import com.tiarebalbi.test.NeedsMultipleTestData
+import com.tiarebalbi.test.NeedsTestData
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import java.time.Duration
 
 class TopicRepositoryTest : AbstractIntegrationTests() {
 
   @Autowired
   lateinit var repository: TopicRepository
 
-  @After
-  @NeedsCleanUp
-  fun tearDown() {
-  }
-
   @Test
+  @NeedsCleanUp
   fun `Should save a new topic in the database`() {
     // given
-    val topic = getTopic()
+    val topic = Topic(id = "1", name = "New Topic")
 
     // when
     val result = this.repository.save(topic)
@@ -33,36 +31,28 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
       .consumeNextWith {
         assertThat(it.slug).isEqualTo("new-topic")
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
+  @Ignore
+  @NeedsTestData(collection = "topic", value = "mock/topics.json")
   fun `Should update an existent topic`() {
-    val topic = this.repository.save(getTopic())
 
-    val topicChanged = getTopic()
-    topicChanged.name = "New name"
-    val update = this.repository.save(topicChanged)
+    val topic = this.repository.findBySlug("my-new-topic").block(Duration.ofSeconds(5))
 
+    topic.name = "New name"
+    val update = this.repository.save(topic)
 
-    val changes = Mono.from(topic).concatWith(update)
-
-    StepVerifier.create(changes)
-      .consumeNextWith {
-        assertThat(it).isNotNull()
-        assertThat(it.name).isEqualTo("New Topic")
-        assertThat(it.slug).isEqualTo("new-topic")
-        assertThat(it.version).isEqualTo(1)
-        assertThat(it.id).isNotEmpty()
-      }
+    StepVerifier.create(update)
       .consumeNextWith {
         assertThat(it).isNotNull()
         assertThat(it.name).isEqualTo("New name")
         assertThat(it.slug).isEqualTo("new-name")
-        assertThat(it.version).isEqualTo(2)
-        assertThat(it.id).isNotEmpty()
+        assertThat(it.version).isEqualTo(1)
+        assertThat(it.id).isEqualTo(topic.id)
       }
-      .expectComplete()
+      .verifyComplete()
 
     val count = this.repository.count()
     StepVerifier.create(count)
@@ -70,50 +60,74 @@ class TopicRepositoryTest : AbstractIntegrationTests() {
   }
 
   @Test
+  @NeedsTestData(collection = "topic", value = "mock/topics.json")
   fun `Should find all topics`() {
-    val topic1 = this.repository.save(getTopic())
-    val topic2 = this.repository.save(getTopic("New Topic"))
+    val result = this.repository.findAll()
 
-    val flow = Mono.from(topic1)
-      .concatWith(topic2)
-      .concatWith(this.repository.findAll())
-
-    StepVerifier.create(flow)
-      .expectNextCount(2)
+    StepVerifier.create(result)
       .consumeNextWith {
         assertThat(it).isNotNull()
-        assertThat(it.name).isEqualTo("New Topic")
-        assertThat(it.slug).isEqualTo("new-topic")
-        assertThat(it.id).isNotEmpty()
+        assertThat(it.version).isNotNull()
+        assertThat(it.id).isNotBlank()
+        assertThat(it.name).isEqualTo("My New Topic")
+        assertThat(it.slug).isEqualTo("my-new-topic")
       }
-      .consumeNextWith {
-        assertThat(it).isNotNull()
-        assertThat(it.name).isEqualTo("New Topic")
-        assertThat(it.slug).isEqualTo("new-topic")
-        assertThat(it.id).isNotEmpty()
-      }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
+  @NeedsTestData(collection = "topic", value = "mock/topics.json")
   fun `Should be able to find by slug`() {
-    val user1 = this.repository.save(getTopic("Custom Topic"))
-    val flow = user1.concatWith(this.repository.findBySlug("custom-topic"))
+    val flow = this.repository.findBySlug("my-new-topic")
 
     StepVerifier.create(flow)
-      .expectNextCount(2)
       .consumeNextWith {
         assertThat(it).isNotNull()
-        assertThat(it.name).isEqualTo("Custom Topic")
-        assertThat(it.slug).isEqualTo("custom-topic")
+        assertThat(it.version).isNotNull()
+        assertThat(it.id).isNotBlank()
+        assertThat(it.name).isEqualTo("My New Topic")
+        assertThat(it.slug).isEqualTo("my-new-topic")
       }
-      .consumeNextWith {
-        assertThat(it).isNotNull()
-        assertThat(it.name).isEqualTo("Custom Topic")
-        assertThat(it.slug).isEqualTo("custom-topic")
-      }
-      .expectComplete()
+      .verifyComplete()
   }
 
-  private fun getTopic(name: String = "New Topic") = Topic(name = name)
+  @Test
+  @NeedsMultipleTestData(
+    NeedsTestData(collection = "topic", value = "mock/topics.json"),
+    NeedsTestData(collection = "topicFollower", value = "mock/topicFollowers.json")
+  )
+  fun `Should remove topic and followers`() {
+    val result = this.repository.deleteBySlug("my-new-topic")
+
+    StepVerifier.create(result)
+      .consumeNextWith {
+        assertThat(it.deletedCount)
+          .isEqualTo(3)
+      }
+      .consumeNextWith {
+        assertThat(it.deletedCount)
+          .isEqualTo(1)
+      }
+      .verifyComplete()
+  }
+
+  @Test
+  @Ignore
+  @NeedsMultipleTestData(
+    NeedsTestData(collection = "topic", value = "mock/topics.json"),
+    NeedsTestData(collection = "topicFollower", value = "mock/topicFollowers.json")
+  )
+  fun `Should get all users topic`() {
+    val result = this.repository.findTopicsByUser("2")
+
+    StepVerifier.create(result)
+      .consumeNextWith {
+        assertThat(it).isNotNull()
+        assertThat(it.name).isEqualTo("My New Topic")
+        assertThat(it.slug).isEqualTo("my-new-topic")
+      }
+      .verifyComplete()
+
+  }
+
 }

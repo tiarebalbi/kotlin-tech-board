@@ -7,6 +7,7 @@ import com.tiarebalbi.model.DeleteResult
 import com.tiarebalbi.model.Topic
 import com.tiarebalbi.repository.ColumnTopicRepository
 import com.tiarebalbi.test.NeedsCleanUp
+import com.tiarebalbi.test.NeedsMultipleTestData
 import com.tiarebalbi.test.NeedsTestData
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
@@ -17,8 +18,8 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.bodyToFlux
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.web.reactive.function.client.exchange
-import reactor.test.StepVerifier
 import reactor.core.publisher.toMono
+import reactor.test.StepVerifier
 
 
 class TopicApiControllerTest : AbstractIntegrationTests() {
@@ -42,7 +43,7 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
         Assert.assertEquals("My New Topic", it.name)
         Assert.assertEquals(Color.BLUE, it.color)
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
@@ -60,7 +61,7 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
         Assert.assertEquals("My New Topic", it.name)
         Assert.assertEquals(Color.BLUE, it.color)
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
@@ -68,16 +69,20 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
   fun `Should send a request to remove a topic`() {
     val topics = client
       .delete()
-      .uri("/api/topic/new-topic")
+      .uri("/api/topic/my-new-topic")
       .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
       .exchange()
-      .then { r -> r.bodyToMono<DeleteResult>() }
+      .flatMap { r -> r.bodyToFlux<DeleteResult>() }
 
     StepVerifier.create(topics)
       .consumeNextWith {
+        Assertions.assertThat(it.deletedCount).isEqualTo(0)
+      }
+      .consumeNextWith {
         Assertions.assertThat(it.deletedCount).isEqualTo(1)
       }
-      .expectComplete()
+      .verifyComplete()
 
   }
 
@@ -99,7 +104,7 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
         Assert.assertEquals(Color.GREY, it.color)
         assertThat(it.version).isEqualTo(0)
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
@@ -125,7 +130,7 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
         assertThat(it.color).isEqualTo(Color.BLUE)
         assertThat(it.version).isEqualTo(0)
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
@@ -148,26 +153,49 @@ class TopicApiControllerTest : AbstractIntegrationTests() {
         assertThat(it.color).isEqualTo(Color.BLUE)
         assertThat(it.version).isEqualTo(0)
       }
-      .expectComplete()
+      .verifyComplete()
   }
 
   @Test
   @NeedsTestData(value = "mock/topics.json", collection = "topic")
   fun `Should delete a column from a topic`() {
-    this.columnRepository.save(ColumnTopic("1", "Column 1", "new-topic")).block()
+    this.columnRepository.save(ColumnTopic("1", "Column 1", "new-topic")).doOnSubscribe {
 
-    val columns = client
-      .delete()
-      .uri("/api/topic/new-topic/columns/1")
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .then { r -> r.bodyToMono<DeleteResult>() }
+      val columns = client
+        .delete()
+        .uri("/api/topic/new-topic/columns/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .then { r -> r.bodyToMono<DeleteResult>() }
 
-    StepVerifier.create(columns)
+      StepVerifier.create(columns)
+        .consumeNextWith {
+          Assertions.assertThat(it.deletedCount).isEqualTo(1)
+        }
+        .verifyComplete()
+    }
+  }
+
+  @Test
+  @NeedsMultipleTestData(
+    NeedsTestData(collection = "topic", value = "mock/topics.json"),
+    NeedsTestData(collection = "topicFollower", value = "mock/topicFollowers.json")
+  )
+  fun `Should find topics by the user id`() {
+    val topics = client
+      .get()
+      .uri("/api/topic/user/1")
+      .accept(MediaType.APPLICATION_JSON).exchange()
+      .flatMap { it.bodyToFlux<Topic>() }
+
+    StepVerifier.create(topics)
       .consumeNextWith {
-        Assertions.assertThat(it.deletedCount).isEqualTo(1)
+        assertThat(it.slug).isEqualTo("my-new-topic")
+        assertThat(it.name).isEqualTo("My New Topic")
+        assertThat(it.color).isEqualTo(Color.BLUE)
+        assertThat(it.version).isEqualTo(0)
       }
-      .expectComplete()
+      .verifyComplete()
 
   }
 }

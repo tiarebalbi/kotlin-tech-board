@@ -31,5 +31,7 @@ class TopicApiController(val topicRepository: TopicRepository, val columnReposit
   @DeleteMapping("/{slug}/columns/{id}")
   fun deleteColumnById(@PathVariable id: String) = this.columnRepository.deleteById(id)
 
-}
+  @GetMapping("/user/{userId}")
+  fun findByUser(@PathVariable userId: String) = this.topicRepository.findTopicsByUser(userId)
 
+}

@@ -13,7 +13,7 @@ class CardApiController {
   lateinit var repository: CardRepository
 
   @PostMapping
-  fun save(card: Card) = this.repository.save(card)
+  fun save(@RequestBody card: Card) = this.repository.save(card)
 
   @GetMapping("/{columnId}")
   fun findByColumnId(@PathVariable columnId: String) = this.repository.findByColumnTopic(columnId)

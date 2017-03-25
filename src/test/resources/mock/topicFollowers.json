@@ -1,0 +1,20 @@
+[
+  {
+    "topicSlug": "my-new-topic",
+    "userId": "1",
+    "_id": "1",
+    "_class": "com.tiarebalbi.model.TopicFollower"
+  },
+  {
+    "topicSlug": "my-new-topic",
+    "userId": "2",
+    "_id": "2",
+    "_class": "com.tiarebalbi.model.TopicFollower"
+  },
+  {
+    "topicSlug": "my-new-topic",
+    "userId": "3",
+    "_id": "3",
+    "_class": "com.tiarebalbi.model.TopicFollower"
+  }
+]

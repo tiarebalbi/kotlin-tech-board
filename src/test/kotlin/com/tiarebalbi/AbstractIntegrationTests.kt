@@ -1,6 +1,7 @@
 package com.tiarebalbi
 
 import com.tiarebalbi.repository.TestDataPopulator
+import com.tiarebalbi.test.MultipleTestDataDependencyRule
 import com.tiarebalbi.test.TestCleanUpDependencyRule
 import com.tiarebalbi.test.TestDataDependencyRule
 import org.junit.After
@@ -28,6 +29,9 @@ abstract class AbstractIntegrationTests {
   @Rule @JvmField
   public val testCleanUpDependencyRule = TestCleanUpDependencyRule()
 
+  @Rule @JvmField
+  public val multipleTestData = MultipleTestDataDependencyRule()
+
   @Autowired
   lateinit var testDataPopulator: TestDataPopulator
 
@@ -41,11 +45,17 @@ abstract class AbstractIntegrationTests {
     if (testDataDependency.needsTestData()) {
       this.testDataPopulator.populateDatabaseUsingJsonResourcesFromClasspath(testDataDependency.data()!!, testDataDependency.collection()!!)
     }
+
+    if (multipleTestData.needsData()) {
+      multipleTestData.collections().orEmpty().forEach {
+        this.testDataPopulator.populateDatabaseUsingJsonResourcesFromClasspath(it.value, it.collection)
+      }
+    }
   }
 
   @After
   fun cleanUpTestData() {
-    if (testDataDependency.needsTestData() || testCleanUpDependencyRule.needsCleanUp()) {
+    if (testDataDependency.needsTestData() || testCleanUpDependencyRule.needsCleanUp() || multipleTestData.needsData()) {
       this.testDataPopulator.cleanDatabase()
     }
   }

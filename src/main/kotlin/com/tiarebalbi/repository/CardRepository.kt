@@ -18,5 +18,5 @@ class CardRepository(val template: ReactiveMongoTemplate) {
 
   fun findByColumnTopic(column: String): Flux<Card> = template.find(query(where("columnId").`is`(column)))
 
-  fun deleteCardById(id: String) = template.remove<DeleteResult>(query(where("id").`is`(id)))
+  fun deleteCardById(id: String): Mono<DeleteResult> = template.remove<Card>(query(where("id").`is`(id)))
 }
